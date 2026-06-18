@@ -1,31 +1,34 @@
 package ru.iteco.fmhandroid.ui;
 
 
-/*import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.action.ViewActions.*;
-import static android.support.test.espresso.assertion.ViewAssertions.*;
-import static android.support.test.espresso.matcher.ViewMatchers.*;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
+import static androidx.test.espresso.action.ViewActions.replaceText;
+import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
+import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
 
-import static java.util.EnumSet.allOf;
-import static java.util.regex.Pattern.matches;
-
-import android.support.test.espresso.ViewInteraction;
-import android.support.test.filters.LargeTest;
-import android.support.test.rule.ActivityTestRule;
-import android.support.test.runner.AndroidJUnit4;*/
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
+import androidx.test.espresso.IdlingRegistry;
+import androidx.test.espresso.ViewInteraction;
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.hamcrest.core.IsInstanceOf;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,14 +37,27 @@ import ru.iteco.fmhandroid.R;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class AppActivityTest {
+public class MainPageReadFirstNewsTest {
 
     @Rule
-    public ActivityTestRule<AppActivity> mActivityTestRule =
-            new ActivityTestRule<>(AppActivity.class);
+    public ActivityScenarioRule<AppActivity> mActivityScenarioRule =
+            new ActivityScenarioRule<>(AppActivity.class);
+
+    @Before
+    public void registerIdlingResources() {
+        IdlingRegistry.getInstance().register(EspressoIdlingResources.idlingResource);
+    }
+
+
+
+    @After
+    public void unregisterIdlingResources() {
+        IdlingRegistry.getInstance().unregister(EspressoIdlingResources.idlingResource);
+    }
+
 
     @Test
-    public void appActivityTest() {
+    public void mainPageReadFirstNewsTest() {
         ViewInteraction textInputEditText = onView(
                 allOf(childAtPosition(
                                 childAtPosition(
@@ -70,11 +86,12 @@ public class AppActivityTest {
                         isDisplayed()));
         materialButton.perform(click());
 
-        ViewInteraction linearLayout = onView(
-                allOf(withId(com.google.android.material.R.id.action_bar_root),
-                        withParent(withParent(IsInstanceOf.<View>instanceOf(android.widget.LinearLayout.class))),
-                        isDisplayed()));
-        linearLayout.check(matches(isDisplayed()));
+        ViewInteraction recyclerView = onView(
+                allOf(withId(R.id.news_list_recycler_view),
+                        childAtPosition(
+                                withId(R.id.all_news_cards_block_constraint_layout),
+                                0)));
+        recyclerView.perform(actionOnItemAtPosition(0, click()));
     }
 
     private static Matcher<View> childAtPosition(
